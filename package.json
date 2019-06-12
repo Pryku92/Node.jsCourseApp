@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Pryku92/Node-Scratchpad/issues"
   },
-  "homepage": "https://github.com/Pryku92/Node-Scratchpad#readme"
+  "homepage": "https://github.com/Pryku92/Node-Scratchpad#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
