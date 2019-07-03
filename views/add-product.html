@@ -7,6 +7,8 @@
     <title>Add Product</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/product.css">
+    <link rel="stylesheet" href="/css/forms.css">
+
 </head>
 <body>
         <header class="main-header">
@@ -18,14 +20,14 @@
                 </nav>
             </header>
 
-    <main>
+    <main class="main">
         <form class="product-form" action="/admin/add-product" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input type="text" name="title" id="title">
             </div>
 
-            <button type="submit">Add Product</button>
+            <button class="btn" type="submit">Add Product</button>
         </form>
     </main>
 </body>
