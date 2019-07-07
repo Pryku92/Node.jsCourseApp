@@ -8,6 +8,8 @@ const router = express.Router();
 
 const products = [];
 
+//app.use / app.post / app.get - HTTP method filtering (.get, .post etc. - exact matching)
+
 // /admin/add-product => GET
 router.get('/add-product', (req, res, next) => {
     res.sendFile(path.join(root, 'views', 'add-product.html')); //__dirname, '..', 'views', 'add-product.html'
