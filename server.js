@@ -11,7 +11,8 @@ const app = express();
 
 //EXPRESS APP SETTINGS
 app.engine('hbs', expressHandlebars({
-    defaultLayout: null,
+    layoutsDir: 'views/layouts/',
+    defaultLayout: 'main-layout',
     extname: 'hbs'
 }));
 app.set('view engine', 'hbs');
