@@ -4,18 +4,21 @@ const path = require('path');
 //3RD PARTY PACKAGES IMPORTS
 const express = require('express');
 const bodyParser = require('body-parser');
-const expressHandlebars = require('express-handlebars');
+//const expressHandlebars = require('express-handlebars');
 
 //EXPRESS INIT
 const app = express();
 
 //EXPRESS APP SETTINGS
-app.engine('hbs', expressHandlebars({
-    layoutsDir: 'views/layouts/',
-    defaultLayout: 'main-layout',
-    extname: 'hbs'
-}));
-app.set('view engine', 'hbs');
+
+//Used for handlebars engine
+// app.engine('hbs', expressHandlebars({
+//     layoutsDir: 'views/layouts/',
+//     defaultLayout: 'main-layout',
+//     extname: 'hbs'
+// }));
+
+app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 //ROUTERS IMPORTS
