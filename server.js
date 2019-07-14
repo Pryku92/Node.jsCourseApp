@@ -22,8 +22,11 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 //ROUTERS IMPORTS
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+
+//CONTROLLERS IMPORTS
+const errorController = require('./controllers/error');
 
 //REQUEST BODY PARSER
 app.use(bodyParser.urlencoded({extended: false}));
@@ -32,13 +35,10 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //ROUTING MIDDLEWARE
-app.use('/admin', adminData.router);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 //PAGE NOT FOUND ROUTE
-app.use((req, res, next) => {
-    //res.status(404).sendFile(path.join(__dirname, 'views', 'page-not-found.html'));
-    res.status(404).render('page-not-found', {pageTitle: 'Page Not Found'});
-});
+app.use(errorController.get404);
 
 app.listen(8000);
