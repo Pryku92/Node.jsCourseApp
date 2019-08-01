@@ -28,6 +28,8 @@ const shopRoutes = require('./routes/shop');
 //CONTROLLERS IMPORTS
 const errorController = require('./controllers/error');
 
+const db = require('./utility/database');
+
 //REQUEST BODY PARSER
 app.use(bodyParser.urlencoded({extended: false}));
 
