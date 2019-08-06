@@ -28,13 +28,28 @@ const shopRoutes = require('./routes/shop');
 //CONTROLLERS IMPORTS
 const errorController = require('./controllers/error');
 
-const db = require('./utility/database');
+//INITIALIZED SEQUELIZE OBJECT IMPORT
+const sequelize = require('./utility/database');
+
+//MODELS IMPORTS
+const Product = require('./models/product');
+const User = require('./models/user');
 
 //REQUEST BODY PARSER
 app.use(bodyParser.urlencoded({extended: false}));
 
 //STATIC SERVING OF FILES
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use((req, res, next) => {
+    User.findByPk(1)
+        .then(user => {
+            // IT'S POSSIBLE TO SAVE SOME VALUE IN REQUEST BODY
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
 
 //ROUTING MIDDLEWARE
 app.use('/admin', adminRoutes);
@@ -43,4 +58,26 @@ app.use(shopRoutes);
 //PAGE NOT FOUND ROUTE
 app.use(errorController.get404);
 
-app.listen(8000);
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+User.hasMany(Product);
+
+sequelize
+    // .sync({ force: true })
+    .sync()
+    .then(result => {
+        return User.findByPk(1);
+    })
+    .then(user => {
+        if(!user) {
+            return User.create({ name: 'John', email: 'john@test.com' });
+        }
+        // INSTA RESOLVING PROMISE - not needed in .then block
+        // return Promise.resolve(user);
+        return user;
+    })
+    .then(user => {
+        app.listen(8000);
+    })
+    .catch(err => {
+        console.log(err);
+    });

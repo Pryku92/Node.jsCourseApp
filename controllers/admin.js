@@ -14,12 +14,38 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    const product = new Product(null, title, imageUrl, description, price);
-    product.save()
-        .then(() => {
-            res.redirect('/');
+    // REGULAR SQL ASSOCIATED CODE
+    // const product = new Product(null, title, imageUrl, description, price);
+    // product.save()
+    //     .then(() => {
+    //         res.redirect('/');
+    //     })
+    //     .catch(err => console.log(err));
+
+    // //explicitly setting userId value
+    // Product.create({
+    //     title: title,
+    //     price: price,
+    //     imageUrl: imageUrl,
+    //     description: description,
+    //     //sequelize generated field for relation with Product
+    //     userId: req.user.id
+    // })
+
+    //automatically setting userId value with sequelize method
+    req.user.createProduct({
+        title: title,
+        price: price,
+        imageUrl: imageUrl,
+        description: description
+    })
+        .then(result => {
+            // console.log(result);
+            res.redirect('/admin/products');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log(err);
+        });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -28,17 +54,19 @@ exports.getEditProduct = (req, res, next) => {
         return res.redirect('/');
     }
     const prodId = req.params.productId;
-    Product.findById(prodId, product => {
-        if(!product) {
-            return res.redirect('/');
-        }
-        res.render('admin/edit-product', {
-            pageTitle: 'Edit Product',
-            path: '',
-            editing: editMode,
-            product: product
-        });
-    });
+    Product.findByPk(prodId)
+        .then(product => {
+            if(!product) {
+                return res.redirect('/');
+            }
+            res.render('admin/edit-product', {
+                pageTitle: 'Edit Product',
+                path: '',
+                editing: editMode,
+                product: product
+            });
+        })
+        .catch(err => console.log(err));
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -47,29 +75,51 @@ exports.postEditProduct = (req, res, next) => {
     const updatedPrice = req.body.price;
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
-    const updatedProduct = new Product(
-        prodId,
-        updatedTitle,
-        updatedImageUrl,
-        updatedDescription,
-        updatedPrice
-    );
-    updatedProduct.save();
-    res.redirect('admin/products');
+    // OLD WAY WITH FILE STORAGE
+    // const updatedProduct = new Product(
+    //     prodId,
+    //     updatedTitle,
+    //     updatedImageUrl,
+    //     updatedDescription,
+    //     updatedPrice
+    // );
+    // updatedProduct.save();
+    Product.findByPk(prodId)
+        .then(product => {
+            product.title = updatedTitle;
+            product.price = updatedPrice;
+            product.description = updatedDescription;
+            product.imageUrl = updatedImageUrl;
+            return product.save();
+        })
+        .then(result => {
+            res.redirect('/admin/products');
+        })
+        .catch(err => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll(products => {
-        res.render('admin/product-list', {
-            prods: products,
-            pageTitle: 'Admin Products',
-            path: '/admin/products'
+    Product.findAll()
+        .then(products => {
+            res.render('admin/product-list', {
+                prods: products,
+                pageTitle: 'Admin Products',
+                path: '/admin/products'
+            });
+        })
+        .catch(err => {
+            console.log(err);
         });
-    });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    Product.deleteById(prodId);
-    res.redirect('/admin/products');
+    // OLD WAY WITH FILE STORAGE
+    // Product.deleteById(prodId);
+    Product.findByPk(prodId)
+        .then(product => product.destroy())
+        .then(result => {
+            res.redirect('/admin/products');
+        })
+        .catch(err => console.log(err));
 };
