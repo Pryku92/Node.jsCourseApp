@@ -82,6 +82,9 @@ sequelize
         return user;
     })
     .then(user => {
+        return user.createCart();
+    })
+    .then(cart => {
         app.listen(8000);
     })
     .catch(err => {
