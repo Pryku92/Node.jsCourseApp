@@ -90,7 +90,7 @@ sequelize
         return user.getCart()
             .then(cart => {
                 if(!cart) {
-                    user.createCart();
+                    return user.createCart();
                 }
             });
     })
