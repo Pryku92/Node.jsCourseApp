@@ -36,6 +36,8 @@ const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
 const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 //REQUEST BODY PARSER
 app.use(bodyParser.urlencoded({extended: false}));
@@ -66,10 +68,13 @@ User.hasOne(Cart);
 Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
 
 sequelize
-    .sync({ force: true })
-    // .sync()
+    // .sync({ force: true })
+    .sync()
     .then(result => {
         return User.findByPk(1);
     })
@@ -82,7 +87,12 @@ sequelize
         return user;
     })
     .then(user => {
-        return user.createCart();
+        return user.getCart()
+            .then(cart => {
+                if(!cart) {
+                    user.createCart();
+                }
+            });
     })
     .then(cart => {
         app.listen(8000);
