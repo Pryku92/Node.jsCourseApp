@@ -21,8 +21,8 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
-// //ROUTERS IMPORTS
-// const adminRoutes = require('./routes/admin');
+//ROUTERS IMPORTS
+const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
 
 //CONTROLLERS IMPORTS
@@ -32,7 +32,7 @@ const errorController = require('./controllers/error');
 // const sequelize = require('./utility/database');
 
 //MONGO CLIENT OBJECT IMPORT
-const mongoConnect = require('./utility/database');
+const mongoConnect = require('./utility/database').mongoConnect;
 
 //MODELS IMPORTS
 //SEQUELIZE MODELS
@@ -58,17 +58,17 @@ app.use((req, res, next) => {
     //         next();
     //     })
     //     .catch(err => console.log(err));
+    next();
 });
 
-// //ROUTING MIDDLEWARE
-// app.use('/admin', adminRoutes);
+//ROUTING MIDDLEWARE
+app.use('/admin', adminRoutes);
 // app.use(shopRoutes);
 
 //PAGE NOT FOUND ROUTE
 app.use(errorController.get404);
 
-mongoConnect(client => {
-    console.log(client);
+mongoConnect(() => {
     app.listen(8000);
 });
 
