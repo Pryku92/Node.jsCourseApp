@@ -1,19 +1,13 @@
-// const mysql = require('mysql2');
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
 
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     user: 'root',
-//     database: 'node-course-app',
-//     password: 'password'
-// });
+const mongoConnect = callback => {
+    MongoClient.connect('mongodb+srv://ApkaNode:72qif2EXvPbwWn1q@cluster0-3zw3b.mongodb.net/test?retryWrites=true&w=majority')
+        .then(client => {
+            console.log('Connected!');
+            callback(client);
+        })
+        .catch(err => console.log(err));
+};
 
-// module.exports = pool.promise();
-
-const Sequelize = require('sequelize');
-
-const sequelize = new Sequelize('node-course-app', 'root', 'password', {
-    dialect: 'mysql',
-    host: 'localhost'
-});
-
-module.exports = sequelize;
+module.exports = mongoConnect;

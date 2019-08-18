@@ -21,23 +21,27 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
-//ROUTERS IMPORTS
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+// //ROUTERS IMPORTS
+// const adminRoutes = require('./routes/admin');
+// const shopRoutes = require('./routes/shop');
 
 //CONTROLLERS IMPORTS
 const errorController = require('./controllers/error');
 
-//INITIALIZED SEQUELIZE OBJECT IMPORT
-const sequelize = require('./utility/database');
+// //INITIALIZED SEQUELIZE OBJECT IMPORT
+// const sequelize = require('./utility/database');
+
+//MONGO CLIENT OBJECT IMPORT
+const mongoConnect = require('./utility/database');
 
 //MODELS IMPORTS
-const Product = require('./models/product');
-const User = require('./models/user');
-const Cart = require('./models/cart');
-const CartItem = require('./models/cart-item');
-const Order = require('./models/order');
-const OrderItem = require('./models/order-item');
+//SEQUELIZE MODELS
+// const Product = require('./models/product');
+// const User = require('./models/user');
+// const Cart = require('./models/cart');
+// const CartItem = require('./models/cart-item');
+// const Order = require('./models/order');
+// const OrderItem = require('./models/order-item');
 
 //REQUEST BODY PARSER
 app.use(bodyParser.urlencoded({extended: false}));
@@ -46,57 +50,65 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    User.findByPk(1)
-        .then(user => {
-            // IT'S POSSIBLE TO SAVE SOME VALUE IN REQUEST BODY
-            req.user = user;
-            next();
-        })
-        .catch(err => console.log(err));
+    //SEQUELIZE APPROACH
+    // User.findByPk(1)
+    //     .then(user => {
+    //         // IT'S POSSIBLE TO SAVE SOME VALUE IN REQUEST BODY
+    //         req.user = user;
+    //         next();
+    //     })
+    //     .catch(err => console.log(err));
 });
 
-//ROUTING MIDDLEWARE
-app.use('/admin', adminRoutes);
-app.use(shopRoutes);
+// //ROUTING MIDDLEWARE
+// app.use('/admin', adminRoutes);
+// app.use(shopRoutes);
 
 //PAGE NOT FOUND ROUTE
 app.use(errorController.get404);
 
-Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
-User.hasMany(Product);
-User.hasOne(Cart);
-Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartItem });
-Product.belongsToMany(Cart, { through: CartItem });
-Order.belongsTo(User);
-User.hasMany(Order);
-Order.belongsToMany(Product, { through: OrderItem });
+mongoConnect(client => {
+    console.log(client);
+    app.listen(8000);
+});
 
-sequelize
-    // .sync({ force: true })
-    .sync()
-    .then(result => {
-        return User.findByPk(1);
-    })
-    .then(user => {
-        if(!user) {
-            return User.create({ name: 'John', email: 'john@test.com' });
-        }
-        // INSTA RESOLVING PROMISE - not needed in .then block
-        // return Promise.resolve(user);
-        return user;
-    })
-    .then(user => {
-        return user.getCart()
-            .then(cart => {
-                if(!cart) {
-                    return user.createCart();
-                }
-            });
-    })
-    .then(cart => {
-        app.listen(8000);
-    })
-    .catch(err => {
-        console.log(err);
-    });
+
+//SEQUELIZE APPROACH
+// Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+// User.hasMany(Product);
+// User.hasOne(Cart);
+// Cart.belongsTo(User);
+// Cart.belongsToMany(Product, { through: CartItem });
+// Product.belongsToMany(Cart, { through: CartItem });
+// Order.belongsTo(User);
+// User.hasMany(Order);
+// Order.belongsToMany(Product, { through: OrderItem });
+
+// sequelize
+//     // .sync({ force: true })
+//     .sync()
+//     .then(result => {
+//         return User.findByPk(1);
+//     })
+//     .then(user => {
+//         if(!user) {
+//             return User.create({ name: 'John', email: 'john@test.com' });
+//         }
+//         // INSTA RESOLVING PROMISE - not needed in .then block
+//         // return Promise.resolve(user);
+//         return user;
+//     })
+//     .then(user => {
+//         return user.getCart()
+//             .then(cart => {
+//                 if(!cart) {
+//                     return user.createCart();
+//                 }
+//             });
+//     })
+//     .then(cart => {
+//         app.listen(8000);
+//     })
+//     .catch(err => {
+//         console.log(err);
+//     });
