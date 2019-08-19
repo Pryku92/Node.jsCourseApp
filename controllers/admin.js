@@ -33,12 +33,15 @@ exports.postAddProduct = (req, res, next) => {
     // })
 
     //automatically setting userId value with sequelize method
-    req.user.createProduct({
-        title: title,
-        price: price,
-        imageUrl: imageUrl,
-        description: description
-    })
+    // req.user.createProduct({
+    //     title: title,
+    //     price: price,
+    //     imageUrl: imageUrl,
+    //     description: description
+    // })
+    const product = new Product(title, price, description, imageUrl);
+        product
+        .save()
         .then(result => {
             // console.log(result);
             res.redirect('/admin/products');

@@ -23,7 +23,7 @@ app.set('views', 'views');
 
 //ROUTERS IMPORTS
 const adminRoutes = require('./routes/admin');
-// const shopRoutes = require('./routes/shop');
+const shopRoutes = require('./routes/shop');
 
 //CONTROLLERS IMPORTS
 const errorController = require('./controllers/error');
@@ -63,7 +63,7 @@ app.use((req, res, next) => {
 
 //ROUTING MIDDLEWARE
 app.use('/admin', adminRoutes);
-// app.use(shopRoutes);
+app.use(shopRoutes);
 
 //PAGE NOT FOUND ROUTE
 app.use(errorController.get404);
