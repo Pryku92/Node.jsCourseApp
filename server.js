@@ -37,7 +37,7 @@ const mongoConnect = require('./utility/database').mongoConnect;
 //MODELS IMPORTS
 //SEQUELIZE MODELS
 // const Product = require('./models/product');
-// const User = require('./models/user');
+const User = require('./models/user');
 // const Cart = require('./models/cart');
 // const CartItem = require('./models/cart-item');
 // const Order = require('./models/order');
@@ -58,7 +58,13 @@ app.use((req, res, next) => {
     //         next();
     //     })
     //     .catch(err => console.log(err));
-    next();
+    User.findById('5d5c355daa5b983b30ee7477')
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+    // next();
 });
 
 //ROUTING MIDDLEWARE
