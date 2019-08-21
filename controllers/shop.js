@@ -74,20 +74,34 @@ exports.getProduct = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
+// // SEQUELIZE APPROACH
+// exports.getCart = (req, res, next) => {
+//     req.user
+//         .getCart()
+//         .then(cart => {
+//             return cart
+//                 .getProducts()
+//                 .then(products => {
+//                     res.render('shop/cart', {
+//                         pageTitle: 'Your Cart',
+//                         path: '/cart',
+//                         products: products
+//                     });
+//                 })
+//                 .catch(err => console.log(err));
+//         })
+//         .catch(err => console.log(err));
+// };
+
 exports.getCart = (req, res, next) => {
     req.user
         .getCart()
-        .then(cart => {
-            return cart
-                .getProducts()
-                .then(products => {
-                    res.render('shop/cart', {
-                        pageTitle: 'Your Cart',
-                        path: '/cart',
-                        products: products
-                    });
-                })
-                .catch(err => console.log(err));
+        .then(products => {
+            res.render('shop/cart', {
+                pageTitle: 'Your Cart',
+                path: '/cart',
+                products: products
+            });
         })
         .catch(err => console.log(err));
 };
@@ -98,32 +112,41 @@ exports.postCart = (req, res, next) => {
     //     Cart.addProduct(prodId, product.price);
     // });
     // res.redirect('/cart');
-    let fetchedCart;
-    let newQty = 1;
-    req.user
-        .getCart()
-        .then(cart => {
-            fetchedCart = cart;
-            return cart.getProducts({ where: { id: prodId } });
-        })
-        .then(products => {
-            let product;
-            if(products.length > 0) {
-                product = products[0];
-            }
-            if(product) {
-                const oldQty = product.cartItem.qty;
-                newQty = oldQty + 1;
-                return product;
-            }
-            return Product.findByPk(prodId)
-        })
+    // // SEQUELIZE APPROACH
+    // let fetchedCart;
+    // let newQty = 1;
+    // req.user
+    //     .getCart()
+    //     .then(cart => {
+    //         fetchedCart = cart;
+    //         return cart.getProducts({ where: { id: prodId } });
+    //     })
+    //     .then(products => {
+    //         let product;
+    //         if(products.length > 0) {
+    //             product = products[0];
+    //         }
+    //         if(product) {
+    //             const oldQty = product.cartItem.qty;
+    //             newQty = oldQty + 1;
+    //             return product;
+    //         }
+    //         return Product.findByPk(prodId)
+    //     })
+    //     .then(product => {
+    //         return fetchedCart.addProduct(product, {
+    //             through: { qty: newQty }
+    //         });
+    //     })
+    //     .then(() => {
+    //         res.redirect('/cart');
+    //     })
+    //     .catch(err => console.log(err));
+    Product.findById(prodId)
         .then(product => {
-            return fetchedCart.addProduct(product, {
-                through: { qty: newQty }
-            });
+            req.user.addToCart(product);
         })
-        .then(() => {
+        .then(result => {
             res.redirect('/cart');
         })
         .catch(err => console.log(err));
