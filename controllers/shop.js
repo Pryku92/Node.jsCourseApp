@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.getIndex = (req, res, next) => {
     // console.log('shop.js', adminData.products);
@@ -12,7 +13,9 @@ exports.getIndex = (req, res, next) => {
     //         });
     //     })
     //     .catch(err => console.log(err));
-    Product.fetchAll()
+    Product
+        //.fetchAll()
+        .find()
         .then(products => {
             res.render('shop/index', {
                 prods: products,
@@ -26,7 +29,9 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
+    Product
+        //.fetchAll()
+        .find()
         .then(products => {
             res.render('shop/product-list', {
                 prods: products,
@@ -95,8 +100,11 @@ exports.getProduct = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
     req.user
-        .getCart()
-        .then(products => {
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = user.cart.items;
+            // console.log(products);
             res.render('shop/cart', {
                 pageTitle: 'Your Cart',
                 path: '/cart',
@@ -212,18 +220,61 @@ exports.postCartDeleteItem = (req, res, next) => {
 // }
 
 exports.postOrder = (req, res, next) => {
-    let fetchedCart;
     req.user
-        .addOrder()
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = user.cart.items.map(i => {
+                return { qty: i.qty, product: {...i.productId._doc} };
+            });
+            const order = new Order({
+                user: {
+                    name: req.user.name,
+                    userId: req.user
+                },
+                products: products
+            });
+            return order.save();
+        })
         .then(result => {
+            return req.user.clearCart();
+        })
+        .then(() => {
             res.redirect('/orders');
         })
         .catch(err => console.log(err));
 }
 
+// // SEQUELIZE APPROACH
+// exports.getOrders = (req, res, next) => {
+//     req.user
+//         .getOrders({include: ['products']})
+//         .then(orders => {
+//             res.render('shop/orders', {
+//                 pageTitle: 'Your Orders',
+//                 path: '/orders',
+//                 orders: orders
+//             });
+//         })
+//         .catch(err => console.log(err));
+// };
+
+// // REGULAR MONGODB APPROACH
+// exports.getOrders = (req, res, next) => {
+//     req.user
+//         .getOrders()
+//         .then(orders => {
+//             res.render('shop/orders', {
+//                 pageTitle: 'Your Orders',
+//                 path: '/orders',
+//                 orders: orders
+//             });
+//         })
+//         .catch(err => console.log(err));
+// };
+
 exports.getOrders = (req, res, next) => {
-    req.user
-        .getOrders({include: ['products']})
+    Order.find({'user.userId': req.user._id })
         .then(orders => {
             res.render('shop/orders', {
                 pageTitle: 'Your Orders',

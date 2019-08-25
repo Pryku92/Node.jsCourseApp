@@ -32,10 +32,12 @@ const errorController = require('./controllers/error');
 // const sequelize = require('./utility/database');
 
 //MONGO CLIENT OBJECT IMPORT
-const mongoConnect = require('./utility/database').mongoConnect;
+//const mongoConnect = require('./utility/database').mongoConnect;
+
+//MONGOOSE IMPORT
+const mongoose = require('mongoose');
 
 //MODELS IMPORTS
-//SEQUELIZE MODELS
 // const Product = require('./models/product');
 const User = require('./models/user');
 // const Cart = require('./models/cart');
@@ -58,9 +60,9 @@ app.use((req, res, next) => {
     //         next();
     //     })
     //     .catch(err => console.log(err));
-    User.findById('5d5c355daa5b983b30ee7477')
+    User.findById('5d5ff3a5d2eeba0350d64613')
         .then(user => {
-            req.user = new User(user.name, user.email, user.cart, user._id);
+            req.user = user;
             next();
         })
         .catch(err => console.log(err));
@@ -74,9 +76,28 @@ app.use(shopRoutes);
 //PAGE NOT FOUND ROUTE
 app.use(errorController.get404);
 
-mongoConnect(() => {
-    app.listen(8000);
-});
+mongoose    
+    .connect('mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority')
+    .then(result => {
+        User.findOne().then(user => {
+            if(!user) {
+                const user = new User({
+                    name: 'John',
+                    email: 'john@test.com',
+                    cart: {
+                        items: []
+                    }
+                });
+                user.save();
+            }
+        });
+        app.listen(8000);
+    })
+    .catch(err => console.log(err));
+
+// mongoConnect(() => {
+//     app.listen(8000);
+// });
 
 
 //SEQUELIZE APPROACH

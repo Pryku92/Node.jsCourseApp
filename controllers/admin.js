@@ -39,14 +39,13 @@ exports.postAddProduct = (req, res, next) => {
     //     imageUrl: imageUrl,
     //     description: description
     // })
-    const product = new Product(
-            title,
-            price,
-            description,
-            imageUrl,
-            null,
-            req.user._id
-        );
+    const product = new Product({
+        title: title,
+        price: price,
+        description: description,
+        imageUrl: imageUrl,
+        userId: req.user
+    });
         product
         .save()
         .then(result => {
@@ -110,15 +109,23 @@ exports.postEditProduct = (req, res, next) => {
     //         product.imageUrl = updatedImageUrl;
     //         return product.save();
     //     })
-    const product = new Product(
-        updatedTitle,
-        updatedPrice,
-        updatedDescription,
-        updatedImageUrl,
-        prodId
-        );
-    product
-        .save()
+    // // REGULAR MONGODB APPROACH
+    // const product = new Product(
+    //     updatedTitle,
+    //     updatedPrice,
+    //     updatedDescription,
+    //     updatedImageUrl,
+    //     prodId
+    //     );
+
+    Product.findById(prodId)
+        .then(product => {
+            product.title = updatedTitle;
+            product.price = updatedPrice;
+            product.description = updatedDescription;
+            product.imageUrl = updatedImageUrl;
+            return product.save()
+        })
         .then(result => {
             console.log('PRODUCT UPDATED');
             res.redirect('/admin/products');
@@ -130,7 +137,9 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
     // 
-    Product.fetchAll()
+    Product
+        //.fetchAll()
+        .find()
         .then(products => {
             res.render('admin/product-list', {
                 prods: products,
@@ -145,13 +154,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    // OLD WAY WITH FILE STORAGE
+    // FILE STORAGE APPROACH
     // Product.deleteById(prodId);
     // // SEQUELIZE APPROACH
     // Product.findByPk(prodId)
     //     .then(product => product.destroy())
     Product
-        .deleteById(prodId)
+        //.deleteById(prodId)
+        .findByIdAndDelete(prodId)
         .then(() => {
             res.redirect('/admin/products');
         })
