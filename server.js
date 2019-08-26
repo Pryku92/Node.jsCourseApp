@@ -5,9 +5,17 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 //const expressHandlebars = require('express-handlebars');
+const session = require('express-session');
+const SessionStore = require('connect-mongodb-session')(session);
 
 //EXPRESS INIT
 const app = express();
+
+//SESSION STORE INIT
+const store = new SessionStore({
+    uri: 'mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority',
+    collection: 'sessions'
+});
 
 //EXPRESS APP SETTINGS
 
@@ -51,6 +59,14 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 //STATIC SERVING OF FILES
 app.use(express.static(path.join(__dirname, 'public')));
+
+//SESSION MIDDLEWARE
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false,
+    store: store
+}));
 
 app.use((req, res, next) => {
     //SEQUELIZE APPROACH
