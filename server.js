@@ -68,22 +68,34 @@ app.use(session({
     store: store
 }));
 
+// app.use((req, res, next) => {
+//     //SEQUELIZE APPROACH
+//     // User.findByPk(1)
+//     //     .then(user => {
+//     //         // IT'S POSSIBLE TO SAVE SOME VALUE IN REQUEST BODY
+//     //         req.user = user;
+//     //         next();
+//     //     })
+//     //     .catch(err => console.log(err));
+//     User.findById('5d5ff3a5d2eeba0350d64613')
+//         .then(user => {
+//             req.user = user;
+//             next();
+//         })
+//         .catch(err => console.log(err));
+//     // next();
+// });
+
 app.use((req, res, next) => {
-    //SEQUELIZE APPROACH
-    // User.findByPk(1)
-    //     .then(user => {
-    //         // IT'S POSSIBLE TO SAVE SOME VALUE IN REQUEST BODY
-    //         req.user = user;
-    //         next();
-    //     })
-    //     .catch(err => console.log(err));
-    User.findById('5d5ff3a5d2eeba0350d64613')
+    if (!req.session.user) {
+        return next();
+    }
+    User.findById(req.session.user._id)
         .then(user => {
             req.user = user;
             next();
         })
         .catch(err => console.log(err));
-    // next();
 });
 
 //ROUTING MIDDLEWARE
