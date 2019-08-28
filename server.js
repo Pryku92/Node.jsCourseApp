@@ -109,18 +109,19 @@ app.use(errorController.get404);
 mongoose    
     .connect('mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority')
     .then(result => {
-        User.findOne().then(user => {
-            if(!user) {
-                const user = new User({
-                    name: 'John',
-                    email: 'john@test.com',
-                    cart: {
-                        items: []
-                    }
-                });
-                user.save();
-            }
-        });
+        // NOT NEEDED AFTER ADDING AUTHENTICATION
+        // User.findOne().then(user => {
+        //     if(!user) {
+        //         const user = new User({
+        //             name: 'John',
+        //             email: 'john@test.com',
+        //             cart: {
+        //                 items: []
+        //             }
+        //         });
+        //         user.save();
+        //     }
+        // });
         app.listen(8000);
     })
     .catch(err => console.log(err));
