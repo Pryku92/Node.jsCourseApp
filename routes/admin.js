@@ -1,13 +1,16 @@
-const path = require('path');
+//const path = require('path');
 
 const express = require('express');
 
 //const root = require('../utility/path');
 const adminController = require('../controllers/admin');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
 //app.use / app.post / app.get - HTTP method filtering (.get, .post etc. - exact matching)
+
+router.use(isAuth);
 
 // /admin/add-product => GET
 router.get('/add-product', adminController.getAddProduct);

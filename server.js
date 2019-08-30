@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 //const expressHandlebars = require('express-handlebars');
 const session = require('express-session');
 const SessionStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
 
 //EXPRESS INIT
 const app = express();
@@ -16,6 +17,9 @@ const store = new SessionStore({
     uri: 'mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority',
     collection: 'sessions'
 });
+
+// CSRF PROTECTION INIT
+const csrfProtection = csrf();
 
 //EXPRESS APP SETTINGS
 
@@ -68,6 +72,8 @@ app.use(session({
     store: store
 }));
 
+app.use(csrfProtection);
+
 // app.use((req, res, next) => {
 //     //SEQUELIZE APPROACH
 //     // User.findByPk(1)
@@ -86,6 +92,7 @@ app.use(session({
 //     // next();
 // });
 
+// ASSIGNS FULL USER OBJECT FROM DATABASE BASED ON SESSION USER OBJECT
 app.use((req, res, next) => {
     if (!req.session.user) {
         return next();
