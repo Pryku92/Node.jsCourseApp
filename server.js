@@ -105,6 +105,13 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 });
 
+//LOCAL VARIABLES MIDDLEWARE (FOR RENDERED VIEWS)
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isAuthenticated;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
+
 //ROUTING MIDDLEWARE
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
