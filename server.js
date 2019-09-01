@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const SessionStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
+const flash = require('connect-flash');
 
 //EXPRESS INIT
 const app = express();
@@ -18,7 +19,7 @@ const store = new SessionStore({
     collection: 'sessions'
 });
 
-// CSRF PROTECTION INIT
+// CSRF (CROSS SITE REQUEST FORGERY) PROTECTION INIT
 const csrfProtection = csrf();
 
 //EXPRESS APP SETTINGS
@@ -72,7 +73,9 @@ app.use(session({
     store: store
 }));
 
+//MIDDLEWARES USING SESSION
 app.use(csrfProtection);
+app.use(flash());
 
 // app.use((req, res, next) => {
 //     //SEQUELIZE APPROACH

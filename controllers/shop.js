@@ -38,8 +38,7 @@ exports.getProducts = (req, res, next) => {
             res.render('shop/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
-                path: '/products',
-                isAuthenticated: req.session.isAuthenticated
+                path: '/products'
             });
         })
         .catch(err => {
@@ -76,8 +75,7 @@ exports.getProduct = (req, res, next) => {
             res.render('shop/product-details', {
                 product: product,
                 pageTitle: product.title,
-                path: '/products',
-                isAuthenticated: req.session.isAuthenticated
+                path: '/products'
             });
         })
         .catch(err => console.log(err));
@@ -112,8 +110,7 @@ exports.getCart = (req, res, next) => {
             res.render('shop/cart', {
                 pageTitle: 'Your Cart',
                 path: '/cart',
-                products: products,
-                isAuthenticated: req.session.isAuthenticated
+                products: products
             });
         })
         .catch(err => console.log(err));
@@ -284,8 +281,7 @@ exports.getOrders = (req, res, next) => {
             res.render('shop/orders', {
                 pageTitle: 'Your Orders',
                 path: '/orders',
-                orders: orders,
-                isAuthenticated: req.session.isAuthenticated
+                orders: orders
             });
         })
         .catch(err => console.log(err));
@@ -294,7 +290,6 @@ exports.getOrders = (req, res, next) => {
 exports.getCheckout = (req, res, next) => {
     res.render('shop/checkout', {
         pageTitle: 'Checkout',
-        path: '/checkout',
-        isAuthenticated: req.session.isAuthenticated
+        path: '/checkout'
     });
 };
