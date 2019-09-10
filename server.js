@@ -9,6 +9,7 @@ const session = require('express-session');
 const SessionStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 //EXPRESS INIT
 const app = express();
@@ -21,6 +22,26 @@ const store = new SessionStore({
 
 // CSRF (CROSS SITE REQUEST FORGERY) PROTECTION INIT
 const csrfProtection = csrf();
+
+// MULTER STORAGE CONFIG
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images');
+    },
+    filename: (req,file, cb) => {
+        cb(null, new Date().toISOString() + '-' + file.originalname);
+    }
+});
+
+
+// MULTER FILE TYPE FILTER
+const fileFilter = (req, file, cb) => {
+    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
 
 //EXPRESS APP SETTINGS
 
@@ -62,6 +83,9 @@ const User = require('./models/user');
 //REQUEST BODY PARSER
 app.use(bodyParser.urlencoded({extended: false}));
 
+//MULTIPART DATA PARSER
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
+
 //STATIC SERVING OF FILES
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -95,19 +119,6 @@ app.use(flash());
 //     // next();
 // });
 
-// ASSIGNS FULL USER OBJECT FROM DATABASE BASED ON SESSION USER OBJECT
-app.use((req, res, next) => {
-    if (!req.session.user) {
-        return next();
-    }
-    User.findById(req.session.user._id)
-        .then(user => {
-            req.user = user;
-            next();
-        })
-        .catch(err => console.log(err));
-});
-
 //LOCAL VARIABLES MIDDLEWARE (FOR RENDERED VIEWS)
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isAuthenticated;
@@ -115,13 +126,47 @@ app.use((req, res, next) => {
     next();
 });
 
+// ASSIGNS FULL USER OBJECT FROM DATABASE BASED ON SESSION USER OBJECT
+app.use((req, res, next) => {
+    if (!req.session.user) {
+        return next();
+    }
+    User.findById(req.session.user._id)
+        .then(user => {
+            // throw new Error('Dummy error');
+            if(!user) {
+                return next();
+            }
+            req.user = user;
+            next();
+        })
+        .catch(err => {
+            next(err);
+        });
+});
+
 //ROUTING MIDDLEWARE
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+//500 ERROR PAGE ROUTE
+//Handled in error handling middleware
+// app.get('/500', errorController.get500);
+
 //PAGE NOT FOUND ROUTE
 app.use(errorController.get404);
+
+//ERROR HANDLING MIDDLEWARE
+//In case of multiple error handling middlewares, they execute from top to bottom
+app.use((error, req, res, next) => {
+    //res.status(error.httpStatusCode).render(...);
+    // res.redirect('/500');
+    res.status(500).render('500', {
+        pageTitle: 'Error! :(',
+        path: '/500'
+    });
+});
 
 mongoose    
     .connect('mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority')
