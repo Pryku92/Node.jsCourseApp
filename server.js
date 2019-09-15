@@ -29,10 +29,9 @@ const fileStorage = multer.diskStorage({
         cb(null, 'images');
     },
     filename: (req,file, cb) => {
-        cb(null, new Date().toISOString() + '-' + file.originalname);
+        cb(null, Date.now() + '-' + file.originalname);
     }
 });
-
 
 // MULTER FILE TYPE FILTER
 const fileFilter = (req, file, cb) => {
@@ -88,6 +87,7 @@ app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 
 //STATIC SERVING OF FILES
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //SESSION MIDDLEWARE
 app.use(session({
@@ -159,14 +159,16 @@ app.use(errorController.get404);
 
 //ERROR HANDLING MIDDLEWARE
 //In case of multiple error handling middlewares, they execute from top to bottom
-app.use((error, req, res, next) => {
-    //res.status(error.httpStatusCode).render(...);
-    // res.redirect('/500');
-    res.status(500).render('500', {
-        pageTitle: 'Error! :(',
-        path: '/500'
-    });
-});
+// app.use((error, req, res, next) => {
+//     //res.status(error.httpStatusCode).render(...);
+//     // res.redirect('/500');
+//     res.status(500).render('500', {
+//         pageTitle: 'Error! :(',
+//         path: '/500',
+//         isAuthenticated: true,
+//         csrfToken: req.csrfToken()
+//     });
+// });
 
 mongoose    
     .connect('mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority')
