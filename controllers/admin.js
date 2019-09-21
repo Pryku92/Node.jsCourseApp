@@ -1,5 +1,7 @@
 const { validationResult } = require('express-validator/check');
 
+const fileUtility = require('../utility/file');
+
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -217,6 +219,7 @@ exports.postEditProduct = (req, res, next) => {
             product.price = updatedPrice;
             product.description = updatedDescription;
             if(image) {
+                fileUtility.deleteFile(product.imageUrl);
                 product.imageUrl = image.path;
             }
             return product.save()
@@ -257,10 +260,14 @@ exports.postDeleteProduct = (req, res, next) => {
     // // SEQUELIZE APPROACH
     // Product.findByPk(prodId)
     //     .then(product => product.destroy())
-    Product
-        //.deleteById(prodId)
-        //.findByIdAndDelete(prodId)
-        .deleteOne({ _id: prodId, userId: req.user._id })
+    Product.findById(prodId)
+        .then(product => {
+            if(!product) {
+                return next(new Error('Product not found.'));
+            }
+            fileUtility.deleteFile(product.imageUrl);
+            return Product.deleteOne({ _id: prodId, userId: req.user._id });
+        })
         .then(() => {
             res.redirect('/admin/products');
         })

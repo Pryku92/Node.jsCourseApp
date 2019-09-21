@@ -159,16 +159,17 @@ app.use(errorController.get404);
 
 //ERROR HANDLING MIDDLEWARE
 //In case of multiple error handling middlewares, they execute from top to bottom
-// app.use((error, req, res, next) => {
-//     //res.status(error.httpStatusCode).render(...);
-//     // res.redirect('/500');
-//     res.status(500).render('500', {
-//         pageTitle: 'Error! :(',
-//         path: '/500',
-//         isAuthenticated: true,
-//         csrfToken: req.csrfToken()
-//     });
-// });
+app.use((error, req, res, next) => {
+    //res.status(error.httpStatusCode).render(...);
+    // res.redirect('/500');
+    console.log(error);
+    res.status(500).render('500', {
+        pageTitle: 'Error! :(',
+        path: '/500',
+        isAuthenticated: req.session.isAuthenticated,
+        csrfToken: ''
+    });
+});
 
 mongoose    
     .connect('mongodb+srv://ApkaNode:MDI4uEUrYLcinXKK@cluster0-3zw3b.mongodb.net/shop?retryWrites=true&w=majority')
